@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@langchain/core": "^0.3.77",
+    "@langchain/core": "^0.3.78",
     "@langchain/ollama": "^0.2.4",
     "langchain": "^0.3.35",
     "react": "^19.1.1",

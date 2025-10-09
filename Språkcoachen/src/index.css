@@ -1,0 +1,31 @@
+/* Light, app-wide background + sane defaults */
+:root {
+  --app-bg: #f6faff; /* very light blue */
+  --card-bg: #ffffff;
+  --accent: #8b5cf6; /* purple used already */
+  --soft: #eef2ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    sans-serif;
+  color: #1f2937;
+  background: var(--app-bg);
+}
+
+/* Center the app like a mobile screen */
+#root {
+  display: grid;
+  place-items: center;
+  padding: 4vh 1rem;
+}

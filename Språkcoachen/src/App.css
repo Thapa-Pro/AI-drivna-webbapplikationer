@@ -1,0 +1,100 @@
+/* Mobile card */
+.chat {
+  width: min(420px, 92vw);
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+  display: grid;
+  gap: 14px;
+}
+
+/* Messages area */
+.chat__messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 44vh;
+  width: 100%;
+}
+
+/* ---- Composer (works whether you use textarea+actions
+       or the older input-only form) -------------------- */
+
+/* stack textarea/input on its own row */
+.chat__controls,
+.chat__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* multiline textarea style (if you have one) */
+.chat__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #c7b7ff;
+  border-radius: 14px;
+  line-height: 1.35;
+  min-height: 3.6em; /* ~3 lines */
+  overflow: hidden;
+  resize: none;
+  outline: none;
+  background: #fff;
+}
+
+/* single-line input (first exercise) */
+.chat__form input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #c7b7ff;
+  border-radius: 14px;
+  outline: none;
+}
+
+/* row with dropdown + button */
+.chat__actions,
+.chat__form {
+  /* keep button row clean even in first exercise */
+  align-items: center;
+}
+
+/* pill dropdown + button side-by-side */
+.chat__actions {
+  display: grid;
+  grid-template-columns: 1fr auto; /* select grows, button hugs */
+  gap: 10px;
+}
+
+.chat__select {
+  appearance: none;
+  background: var(--soft);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 40px 10px 14px; /* more left padding for text */
+  width: 100%;
+  position: relative;
+}
+
+/* add a subtle chevron so it looks like a “pill” control */
+.chat__select {
+  background-image: linear-gradient(transparent, transparent),
+    radial-gradient(currentColor 30%, transparent 31%);
+  background-position: right 14px center, right 10px center;
+  background-size: 10px 10px, 10px 10px;
+  background-repeat: no-repeat;
+}
+
+.chat__button,
+.chat__form button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* message bubbles you already have can stay as-is;
+   the card + background do the mobile look */

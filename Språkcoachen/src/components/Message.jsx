@@ -1,13 +1,16 @@
 import "./Message.css";
 
-export default function Message({ role, content }) {
-  const cls =
-    role === "user" ? "message message--user" : "message message--assistant";
-  const label = role === "user" ? "user" : "assistant";
+function Message({ content, role }) {
+  const isOwnMessage = role === "user";
+
   return (
-    <div className={cls}>
-      <div className="message__label">{label}</div>
-      <div className="message__bubble">{content}</div>
-    </div>
+    <article className={`message-row ${isOwnMessage ? "own" : "bot"}`}>
+      <section className="message-bubble">
+        <span className="sender">{role}</span>
+        <p>{content}</p>
+      </section>
+    </article>
   );
 }
+
+export default Message;

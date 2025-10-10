@@ -1,128 +1,101 @@
 import "./App.css";
 import { useRef, useState } from "react";
 import { ChatOllama } from "@langchain/ollama";
+
 import Message from "./components/Message";
 
-const MODEL = "llama3.2"; // or "llama3.1:8b"
-const llm = new ChatOllama({ baseUrl: "http://localhost:11434", model: MODEL });
+function App() {
+  const llm = new ChatOllama({
+    model: "llama3.1:8b",
+  });
 
-function systemFor(mode) {
-  if (mode === "translate") {
-    return {
-      role: "system",
-      content:
-        "Du är en översättningsmotor. Översätt användarens mening till engelska. " +
-        "Svara ENDAST med den översatta meningen, utan citat eller förklaringar.",
-    };
-  }
-  return {
-    role: "system",
-    content:
-      "Du är en språktränare som korrigerar svensk grammatik. " +
-      "Korrigera stavning, grammatik och skiljetecken men bevara betydelsen. " +
-      "Svara ENDAST med den korrigerade meningen.",
-  };
-}
+  const inputRef = useRef();
+  const [mode, setMode] = useState("chat"); // "chat" | "en" | "sv-correct"
+  const [messages, setMessages] = useState([]);
+  const [streamMessage, setStreamMessage] = useState(null);
 
-export default function App() {
-  const inputRef = useRef(null);
-  const [mode, setMode] = useState("translate");
-  const [messages, setMessages] = useState([]); // [{ role, content }]
-  const [streamMessage, setStreamMessage] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  async function onSend(e) {
-    e.preventDefault();
-    const text = (inputRef.current?.value || "").trim();
-    if (!text || busy) return;
-
-    setMessages((m) => [...m, { role: "user", content: text }]);
-    inputRef.current.value = "";
-    if (inputRef.current) inputRef.current.style.height = "";
-
-    const convo = [
-      systemFor(mode),
-      ...messages,
-      { role: "user", content: text },
-    ];
-
-    setBusy(true);
-    setStreamMessage("");
-    try {
-      const stream = await llm.stream(convo);
-      let acc = "";
-      for await (const ch of stream) {
-        acc += ch.content || "";
-        setStreamMessage(acc);
-      }
-      setMessages((m) => [...m, { role: "assistant", content: acc }]);
-    } catch (err) {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: `⚠️ ${String(err)}` },
-      ]);
-    } finally {
-      setStreamMessage("");
-      setBusy(false);
+  function systemPromptFor(mode) {
+    if (mode === "en") {
+      return `You are a translation engine. Translate the user's message into English.
+- Return ONLY the translation text (no explanations, no quotes, no prefixes). \
+- If it is a question, don't answer it just translate in English.`;
     }
+    if (mode === "sv-correct") {
+      return `You are a Swedish grammar corrector. If the user's Swedish text contains mistakes, return the corrected Swedish.
+- Importantly, if the text is a question, don't answer it just correct it.
+- Return ONLY Swedish text (no explanations, no quotes, no prefixes).`;
+    }
+    return null; // normal chat
   }
+
+  async function getAnswer(event) {
+    event.preventDefault();
+
+    const question = inputRef.current.value?.trim();
+    if (!question) return;
+
+    // show user's message in the thread
+    setMessages((prev) => [...prev, { content: question, role: "user" }]);
+
+    // build the message list for the LLM
+    const sys = systemPromptFor(mode);
+    const updatedMessages = sys
+      ? [
+          { role: "system", content: sys },
+          ...messages,
+          { role: "user", content: question },
+        ]
+      : [...messages, { role: "user", content: question }];
+
+    // stream the answer
+    const answer = await llm.stream(updatedMessages);
+
+    let temp = "";
+    for await (const chunk of answer) {
+      temp += chunk.content;
+      setStreamMessage(temp);
+    }
+
+    // commit the assistant message
+    setMessages((prev) => [...prev, { content: temp, role: "assistant" }]);
+    setStreamMessage("");
+
+    // optional: clear the input after send
+    inputRef.current.value = "";
+  }
+
+  const messageComponents = messages.map((message, index) => (
+    <Message content={message.content} role={message.role} key={index} />
+  ));
 
   return (
     <main className="chat">
       <section className="chat__messages">
-        {messages.map((m, i) => (
-          <Message key={i} role={m.role} content={m.content} />
-        ))}
-        {streamMessage && (
-          <Message role="assistant" content={streamMessage + " "} />
-        )}
+        {messageComponents}
+        {streamMessage && <Message content={streamMessage} role="assistant" />}
       </section>
 
-      {/* TEXTAREA ABOVE actions */}
-      <form className="chat__controls" onSubmit={onSend}>
-        <textarea
-          className="chat__textarea"
-          rows={3}
+      <form className="chat__form">
+        {/* mode selector like your screenshot */}
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          style={{ marginRight: "0.5rem" }}
+        >
+          <option value="chat">Chatta</option>
+          <option value="en">Engelska</option>
+          <option value="sv-correct">Rätt svenska</option>
+        </select>
+
+        <input
+          type="text"
           ref={inputRef}
-          placeholder={
-            mode === "translate"
-              ? "Skriv en mening att översätta…"
-              : "Skriv en mening att korrigera…"
-          }
-          disabled={busy}
-          onInput={(e) => {
-            e.target.style.height = "auto";
-            e.target.style.height = `${e.target.scrollHeight}px`;
-          }}
+          placeholder="Skriv ett meddelande..."
         />
-
-        <div className="chat__actions">
-          <select
-            className="chat__select"
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            disabled={busy}
-          >
-            <option value="translate">Översätt mening</option>
-            <option value="correct">Korrigera mening grammatiskt</option>
-          </select>
-
-          <button className="chat__button" disabled={busy}>
-            {busy ? (
-              <>
-                Tänker
-                <span className="loading" aria-hidden="true">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-              </>
-            ) : (
-              "Go!"
-            )}
-          </button>
-        </div>
+        <button onClick={getAnswer}>Fråga</button>
       </form>
     </main>
   );
 }
+
+export default App;

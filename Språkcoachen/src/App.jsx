@@ -22,7 +22,7 @@ function App() {
     }
     if (mode === "sv-correct") {
       return `You are a Swedish grammar corrector. If the user's Swedish text contains mistakes, return the corrected Swedish.
-- Importantly, if the text is a question, don't answer it just correct it.
+- Importantly, if the text is a question, don't answer it just correct it. Do not explain the corrections.
 - Return ONLY Swedish text (no explanations, no quotes, no prefixes).`;
     }
     return null; // normal chat

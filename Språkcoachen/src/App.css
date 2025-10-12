@@ -1,3 +1,26 @@
+/* make the page fill the viewport */
+html, body, #root { height: 100%; }
+
+/* remove browser default margins */
+body { margin: 0; }
+
+/* if some other stylesheet put the body in flex,
+   turn it back into a normal block so #root can span full width */
+body { display: block !important; }
+
+/* center the #root contents and ensure it spans the viewport */
+#root {
+  display: grid;
+  place-items: center;   /* centers horizontally + vertically */
+  min-height: 100svh;    /* safe viewport on mobile */
+  width: 100%;           /* important when body used to be flex */
+}
+
+/* belt-and-suspenders: even if grid is overridden, this centers the card */
+.chat { margin-inline: auto; }
+/*===================================Above putting all in the middle=============
+
+
 /* DEFAULT SETTINGS (scoped to the chat card) */
 .chat,
 .chat *,
@@ -9,7 +32,7 @@
   margin: 0;
   padding: 0;
   text-decoration: none;
-  font: inherit; /* keep typography consistent inside chat */
+  font: inherit;
 }
 
 /* Center the chat in the middle of the screen */
@@ -17,11 +40,7 @@
   display: grid;
   place-items: center;
   min-height: 100vh;
-}
-/* Fix centering with Kristofer's flex body */
-body {
-  justify-content: center;
-  align-items: center;
+  
 }
 
 /* Chat card container (centered like a mobile window) */
@@ -45,7 +64,7 @@ body {
   min-height: 44vh;
   width: 100%;
   overflow-y: auto;
-  overflow-x: hidden; /* ===========Prevent horizontal scrollbar======== */
+  overflow-x: hidden; /* prevent horizontal scrollbar */
 }
 
 /* Form and controls layout */
@@ -65,7 +84,7 @@ body {
 .chat__textarea,
 .chat__form input {
   width: 100%;
-  box-sizing: border-box; /* ==========Include padding and border in width========= */
+  box-sizing: border-box;
   padding: 12px 14px;
   border: 2px solid #646cff;
   border-radius: 14px;
@@ -90,26 +109,40 @@ body {
   gap: 10px;
 }
 
-/* Dropdown styling */
+/* === Select with visible caret ▾ === */
+.select-wrapper {
+  position: relative;
+}
+
 .chat__select {
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
   background: #1a1a1a;
   color: rgba(255, 255, 255, 0.87);
   border: 1px solid #444;
   border-radius: 999px;
-  padding: 10px 40px 10px 14px;
+  padding: 10px 44px 10px 14px; /* extra right padding for the caret */
   width: 100%;
-  position: relative;
-  background-image: linear-gradient(transparent, transparent),
-    radial-gradient(currentColor 30%, transparent 31%);
-  background-position: right 14px center, right 10px center;
-  background-size: 10px 10px, 10px 10px;
-  background-repeat: no-repeat;
   transition: border-color 0.25s;
 }
 
 .chat__select:hover {
   border-color: #646cff;
+}
+
+/* The actual caret */
+.select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #646cff;
+  font-size: 32px;
+  line-height: 1;
 }
 
 /* Button styling */
@@ -150,27 +183,15 @@ body {
   animation: bounce 1s infinite ease-in-out;
   display: inline-block;
 }
-.loading span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-.loading span:nth-child(3) {
-  animation-delay: 0.3s;
-}
+.loading span:nth-child(2) { animation-delay: 0.15s; }
+.loading span:nth-child(3) { animation-delay: 0.3s; }
 
 @keyframes bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.25;
-    transform: translateY(0);
-  }
-  40% {
-    opacity: 1;
-    transform: translateY(-3px);
-  }
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40%          { opacity: 1;    transform: translateY(-3px); }
 }
 
-/* Light mode support from teacher’s theme */
+/* Light mode support */
 @media (prefers-color-scheme: light) {
   .chat {
     background: #ffffff;
@@ -192,9 +213,7 @@ body {
     background-color: #ffffff;
   }
 
-  .chat__select {
-    border-color: #c7b7ff;
-  }
+  .chat__select { border-color: #c7b7ff; }
 
   .chat__button,
   .chat__form button {
@@ -206,4 +225,19 @@ body {
   .chat__form button:hover {
     background: #747bff;
   }
+
+  /* light caret */
+  .select-wrapper::after {
+    color: #646cff;
+  }
+}
+
+/* === Red 'Rensa' button (kept centered) ===
+   Put this AFTER the generic button rules so it overrides color */
+.chat__form .clear__btn {
+  background: #e74c3c;
+  color: #fff;
+}
+.chat__form .clear__btn:hover {
+  background: #cf3f30;
 }

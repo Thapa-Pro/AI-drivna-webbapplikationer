@@ -1,21 +1,21 @@
-Övning: Kaffechatbot
+# Övning: Kaffechatbot
 En del av det som behövs för denna övning kommer vi gå igenom på lektionerna. Ni kan dock börja med att få upp en grundläggande chatbot och börja fundera kring era prompts med prompt templates.
 
-Instruktioner
+# Instruktioner
 I denna övning ska du bygga en chatbot som kan prata om kaffebeställningar.
 Kaffechatbotten ska först hämta kaffemenyn från API:et nedan och skicka med som kontext till en språkmodell tillsammans med frågan.
 
-Anropa ett externt API och använda svaret som kontext i en språkmodell.
+# Anropa ett externt API och använda svaret som kontext i en språkmodell.
 Bygga en enkel chat-UI i React.
 Använda LangChain.js för att skapa ett flöde.
 Ditt flöde ska bestå av nedan steg:
 
-Hämtar menyn (om inte redan sparad).
+# Hämtar menyn (om inte redan sparad).
 Skapar en prompt där menyn inkluderas som kontext (här ska du använda en prompt template med).
 Skickar användarens fråga + menyn till Ollama-modellen.
 Tips! Promptdesign är viktigt här så testa olika sätt i din prompt template i hur du formulerar dina frågor samt systemmeddelande.
 
-Exempel på konversation
+# Exempel på konversation
 Användare: Hej! Vad har ni för kaffe idag?
 Kaffechatbot Hej! Idag har vi bl.a. espresso, cappuccino, latte och cold brew. Vill du att jag rekommenderar något?
 Användare: Hur mycket kostar en cappuccino?
